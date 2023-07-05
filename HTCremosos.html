@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HT Mayores</title>
+</head>
+
+<body>
+  <h1>Cremosos / Crema Mecanica</h1>
+  <h1>Carga de Archivo CSV</h1>
+  <form>
+    <input type="file" id="inputFile" accept=".csv" />
+    <button type="button" onclick="cargarCSV()">Cargar Archivo</button>
+    <!-- <button type="button" onclick="cargarCSV()">Cargar Archivo</button> -->
+    <button type="button" onclick="guardarCSV()">Guardar CSV</button>
+
+  </form>
+  <div id="tabla-container" style="font-size: small"></div>
+  <!-- <button type="button" onclick="guardarJSON()">Guardar en BD</button> -->
+
+  <!-- <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+  <script>
+    let jsonData;
+
+    function cargarCSV() {
+      // Obtiene el archivo CSV del input
+      const inputFile = document.getElementById("inputFile").files[0];
+      // Crea un objeto FileReader para leer el archivo
+      const reader = new FileReader();
+      // Cuando se termine de cargar el archivo, se llama a esta función
+      reader.onload = function (event) {
+        // Convierte el archivo CSV en un objeto JSON
+        jsonData = csvJSON(event.target.result);
+        // Crea una tabla HTML a partir del objeto JSON
+        const tablaHTML = crearTablaHTML(jsonData);
+        // Agrega la tabla a la página HTML
+        const tablaContainer = document.getElementById("tabla-container");
+        tablaContainer.innerHTML = "";
+        tablaContainer.appendChild(tablaHTML);
+      };
+      // Lee el archivo CSV como texto
+      reader.readAsText(inputFile);
+    }
+
+    function csvJSON(csv) {
+      const lines = csv.split("\n");
+      const result = [];
+      // const headers = lines[0].split(",");
+      const headers = [
+        "Nac",
+        "",
+        "Jug",
+        "",
+        "",
+        "Esp",
+        "",
+        "Est",
+        "",
+        "",
+        "Edad",
+        "",
+        "TSI",
+        "Sal",
+        "",
+        "Ex",
+        "LD",
+        "LE",
+        "FO",
+        "Con",
+        "PO",
+        "DF",
+        "JU",
+        "LT",
+        "PS",
+        "AN",
+        "BP",
+        "Ultimo",
+        "Est2",
+        "Pos",
+      ];
+      for (let i = 1; i < lines.length; i++) {
+        const obj = {};
+        const currentline = lines[i].split(",");
+        for (let j = 0; j < headers.length; j++) {
+          let listaNumeros = [
+            0, 2, 5, 7, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23,
+            24, 25, 26, 27, 28, 29,
+          ];
+          if (j != 11) {
+            if (j == 10) {
+              obj[headers[j]] = currentline[j] + "." + currentline[j + 1];
+            } else if (listaNumeros.includes(j)) {
+              obj[headers[j]] = currentline[j];
+            }
+          }
+        }
+
+        // Sin filtrar columnas
+        // for (let j = 0; j < headers.length; j++) {
+        //     obj[headers[j]] = currentline[j];
+        // }
+        result.push(obj);
+      }
+      return JSON.stringify(result);
+    }
+
+    function crearTablaHTML(data) {
+      const jsonData = JSON.parse(data);
+      const table = document.createElement("table");
+      const headerRow = document.createElement("tr");
+      for (let key in jsonData[0]) {
+        const headerCell = document.createElement("th");
+        const headerText = document.createTextNode(key.toUpperCase());
+        headerCell.appendChild(headerText);
+        headerRow.appendChild(headerCell);
+      }
+      table.appendChild(headerRow);
+      for (let item of jsonData) {
+        const dataRow = document.createElement("tr");
+        for (let key in item) {
+          const dataCell = document.createElement("td");
+          const dataText = document.createTextNode(item[key]);
+          dataCell.appendChild(dataText);
+          dataRow.appendChild(dataCell);
+        }
+        table.appendChild(dataRow);
+      }
+      return table;
+    }
+
+    function guardarCSV() {
+      // jsonData esta convertido en una cadena con formato JSON
+      const jsonData2 = JSON.parse(jsonData);
+      // jsonData2 convierte la cadena a un objeto JSON
+      let csv = "";
+      let cabecera = Object.keys(jsonData2[0]).join(",");
+
+      csv += cabecera + "\n";
+      // alert(csv);
+      for (let objeto of jsonData2) {
+        let fila = "";
+        for (let propiedad in objeto) {
+          if (fila != "") fila += ",";
+          fila += objeto[propiedad];
+        }
+        csv += fila + "\n";
+      }
+      // Crear un archivo CSV a partir de la cadena de texto
+      let blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      saveAs(blob, "datos.csv");
+    }
+  </script>
+  <script src="prueba.js"></script>
+</body>
+
+</html>
