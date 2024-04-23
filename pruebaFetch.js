@@ -1,4 +1,5 @@
 let contenido = document.getElementById("btn_traerdatos");
+//contenido.onclick("traer_datos()");
 contenido.addEventListener("click", traer_datos);
 let usuario = document.getElementById("contenido");
 
